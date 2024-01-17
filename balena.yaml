@@ -1,0 +1,12 @@
+name: Keybow / Keybow MINI
+version: 0.0.4
+type: sw.application
+data:
+  defaultDeviceType: raspberry-pi
+  supportedDeviceTypes:
+    - raspberry-pi
+    - raspberrypi0-2w-64
+  applicationConfigVariables:
+    - RESIN_HOST_CONFIG_dtoverlay: dwc2
+  applicationEnvironmentVariables:
+    - keybowKeys: require "keybow"; require "layouts/sl_hyperkey"

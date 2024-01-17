@@ -1,0 +1,12 @@
+version: '2.1'
+services:
+  main:
+    build:
+      context: .
+    privileged: true
+    restart: always
+    network_mode: none
+    labels:
+      io.balena.features.kernel-modules: '1'
+      io.balena.features.firmware: '1'
+      io.balena.features.sysfs: '1'

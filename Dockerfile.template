@@ -1,0 +1,36 @@
+FROM balenalib/%%BALENA_ARCH%%-debian:bookworm-build AS build
+
+WORKDIR /boot
+
+COPY keybow-firmware/keybow ./src/
+
+RUN \
+apt-get update && \
+apt-get -y --no-install-recommends install build-essential autoconf libtool libconfig-dev libpng-dev liblua5.4-dev libbcm2835-dev libusbgx-dev
+
+RUN \
+cd src && \
+gcc \
+  keybow.c lights.c lua-config.c gadget-hid.c serial.c \
+  -I/usr/include/lua5.4 \
+  -lpng -lz -lpthread -lm -lbcm2835 -llua5.4 -ldl -lusbgx -lconfig \
+  -o keybow
+
+
+FROM balenalib/%%BALENA_ARCH%%-debian:bookworm
+
+WORKDIR /boot
+
+RUN \
+apt-get update && \
+apt-get -y --no-install-recommends install libpng16-16 liblua5.4-0 libusbgx2 && \
+rm -rf /var/lib/apt/lists/*
+
+COPY keybow-firmware/sdcard/keys.lua keybow-firmware/sdcard/keybow.lua keybow-firmware/sdcard/default.png ./
+COPY keybow-firmware/sdcard/keyboards ./keyboards
+COPY keybow-firmware/sdcard/snippets ./snippets
+COPY keybow-firmware/sdcard/layouts ./layouts
+COPY keybow-firmware/sdcard/patterns ./patterns
+COPY --from=build /boot/src/keybow .
+
+CMD printenv keybowKeys > /boot/keys.lua && /boot/keybow
